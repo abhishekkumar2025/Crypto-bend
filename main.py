@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from crypto_predictor import get_prediction
-from pydantic import BaseModel
+from routes import api_router
 
 app = FastAPI()
 
@@ -14,20 +13,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-class CoinRequest(BaseModel):
-    symbol: str
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Crypto Prediction API"}
-
-@app.post("/predict")
-async def predict_crypto(request: CoinRequest):
-    try:
-        result = get_prediction(request.symbol)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
